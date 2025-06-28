@@ -133,3 +133,12 @@ export function createElement<
     }
     return element;
 }
+
+export function getFormattedPrice(value: number) {
+    if (!value || isNaN(value) || value <= 0) {
+        return 'Бесценно';
+    }
+    // format value to {# ### ###}
+    const formattedValue = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    return `${formattedValue} синапсов`;
+}
