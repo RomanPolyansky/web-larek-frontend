@@ -8,14 +8,14 @@ export class OrderSuccessView extends Component<IOrder> {
   protected _totalWithdawElement: HTMLElement;
   protected _backToShopButton: HTMLButtonElement;
 
-  constructor(container: HTMLElement, IEventEmitter: IEvents) {
+  constructor(container: HTMLElement, events: IEvents) {
     super(container);
     
     this._backToShopButton = ensureElement('.order-success__close', container) as HTMLButtonElement;
     this._totalWithdawElement = ensureElement('.order-success__description', container) as HTMLElement;
 
     this._backToShopButton.addEventListener('click', () => {
-      IEventEmitter.emit(Events.MODAL__CLOSED);
+      events.emit(Events.MODAL__CLOSED);
     });
   }
 

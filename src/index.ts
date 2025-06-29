@@ -16,6 +16,7 @@ import { OrderSuccessView } from './components/ShopOrder/OrderSuccessView';
 import { ModalView } from './components/ModalWindow/ModalView';
 import { ItemApi } from './components/Item/ItemApi';
 import { OrderApi } from './components/ShopOrder/OrderApi';
+import { BasketItemView } from './components/ShopOrder/BasketItemView';
 
 const events = new EventEmitter();
 
@@ -40,7 +41,7 @@ events.on(Events.SHOP_ITEMS__CHANGED, () => {
       const itemElement = new ShopItemInCatalog(
         cloneTemplate('#card-catalog'), 
         events, 
-        item)
+        item.id)
       return itemElement.render(item);
       });
   mainPageView.render({
@@ -51,15 +52,15 @@ events.on(Events.SHOP_ITEMS__CHANGED, () => {
 // Set open shop item modal event
 events.on(Events.SHOP_ITEM__CLICKED, async (data: { id: string }) => {
   const item = await shopItemModel.getItemById(data.id);
-  console.log('Shop item clicked:', item);
   item.categoryColorClass = categoryModel.getCategory(item.category).colorClass;
   const itemTemplate = cloneTemplate('#card-preview') as HTMLElement;
 
-  const shopItemModal = new ItemModalView(itemTemplate, events, item);
+  const shopItemModal = new ItemModalView(itemTemplate, events, item.id);
   shopItemModal.buttonState = shopOrderModel.getItemIds().includes(item.id);
 
   modalView.render({
     content: shopItemModal.render(item),
+    contentType: 'item',
   });
 });
 
@@ -88,16 +89,22 @@ events.on(Events.SHOP_ORDER__CHANGED, () => {
 events.on(Events.SHOP_ORDER__CHANGED, () => {
   const order = shopOrderModel.getOrder();
   const basketTemplate = cloneTemplate('#basket') as HTMLElement;
-  const shopItemModal = new BasketView(basketTemplate, cloneTemplate('#card-basket'), events, order);
-  shopItemModal.render(order);
+  const shopItemModal = new BasketView(basketTemplate, events, basketItemsElementBuilder);
+  if (modalView.contentType === 'order') {
+    modalView.render({
+      content: shopItemModal.render(order),
+      contentType: 'order',
+    });
+  }
 });
 
 events.on(Events.SHOP_ORDER__OPEN, () => {
-  const modal = cloneTemplate('#basket') as HTMLElement;
+  const basketTemplate = cloneTemplate('#basket') as HTMLElement;
   const shopOrder = shopOrderModel.getOrder();
-  const shopBasketView = new BasketView(modal, cloneTemplate('#card-basket'), events, shopOrder);
+  const shopBasketView = new BasketView(basketTemplate, events, basketItemsElementBuilder);
   modalView.render({
     content: shopBasketView.render(shopOrder),
+    contentType: 'order',
   });
 });
 
@@ -107,6 +114,7 @@ events.on(Events.SHOP_ORDER__PROCEED, () => {
   const view = new OrderFormView(modal, events, order);
   modalView.render({
     content: view.render(order),
+    contentType: 'order',
   });
 })
 
@@ -116,6 +124,7 @@ events.on(Events.ORDER_FORM__SUBMITTED_INFO, () => {
   const view = new ContactsFormView(modal, events, order);
   modalView.render({
     content: view.render(order),
+    contentType: 'order',
   });
 });
 
@@ -129,12 +138,23 @@ events.on(Events.ORDER_FORM__SUBMITTED_CONTACTS, async () => {
   const view = new OrderSuccessView(modal, events);
   modalView.render({
     content: view.render(order),
+    contentType: 'order_success',
   });
   events.emit(Events.ORDER__CLOSED);
 });
 
 events.on(Events.ORDER__CLOSED, () => {
   shopOrderModel.clearOrder();
+});
+
+const basketItemsElementBuilder = (orderItems: IItem[]) => orderItems.map(item => {
+  const basketItemView = new BasketItemView(
+    cloneTemplate('#card-basket') as HTMLElement,
+    events,
+    orderItems.indexOf(item) + 1,
+    item.id
+  );
+  return basketItemView.render({...item, });
 });
 
 categories.forEach(category => categoryModel.addCategory(category));

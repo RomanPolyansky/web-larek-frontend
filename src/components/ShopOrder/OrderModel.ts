@@ -22,14 +22,14 @@ export class OrderModel {
   };
 
   addItem(item: IItem) {
-    if (!this._shopOrder.items.includes(item)) {
+    if (!this._shopOrder.items.map(item => item.id).includes(item.id)) {
       this._shopOrder.items.push(item);
     }
     this._events.emit(Events.SHOP_ORDER__CHANGED);
   }
 
   removeItem(item: IItem): void {
-    if (!this._shopOrder.items.includes(item)) {
+    if (!this._shopOrder.items.map(item => item.id).includes(item.id)) {
       return;
     }
     this._shopOrder.items = this._shopOrder.items.filter(i => i.id !== item.id);

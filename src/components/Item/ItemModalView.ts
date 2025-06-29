@@ -9,16 +9,16 @@ export class ItemModalView extends ItemCatalog {
   protected _toBasketButton: HTMLButtonElement;
   private _isInOrder: boolean = false;
 
-  constructor(container: HTMLElement, eventEmitter: IEvents, data: IItem) {
-    super(container, eventEmitter, data);
+  constructor(container: HTMLElement, eventEmitter: IEvents, itemId: string) {
+    super(container, eventEmitter, itemId);
 
     this._descriptionElement = ensureElement('.card__text', container) as HTMLElement;
     this._toBasketButton = ensureElement('.card__button', container) as HTMLButtonElement;
 
     this._toBasketButton.addEventListener('click', () => {
       this._isInOrder ? 
-        eventEmitter.emit(Events.SHOP_ORDER__ITEM_REMOVED, this._data)
-        : eventEmitter.emit(Events.SHOP_ORDER__ITEM_ADDED, this._data);
+        eventEmitter.emit(Events.SHOP_ORDER__ITEM_REMOVED, { id: itemId })
+        : eventEmitter.emit(Events.SHOP_ORDER__ITEM_ADDED, { id: itemId });
 
       this.toggleButtonState();
     });

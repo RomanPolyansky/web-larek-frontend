@@ -5,18 +5,14 @@ import { Component } from "../base/Component";
 import { IEvents } from "../base/EventEmitter";
 
 export class ItemCatalog extends Component<IItem> {
-
-  protected _data: IItem;
   protected _categoryElement: HTMLElement;
   protected _titleElement: HTMLElement;
   protected _imageElement: HTMLImageElement;
   protected _priceElement: HTMLElement;
   protected _openDialgButton: HTMLButtonElement;
 
-  constructor(container: HTMLElement, eventEmitter: IEvents, data: IItem) {
+  constructor(container: HTMLElement, eventEmitter: IEvents, itemId: string) {
     super(container);
-
-    this._data = data;
     
     this._openDialgButton = container as HTMLButtonElement;
 
@@ -26,7 +22,7 @@ export class ItemCatalog extends Component<IItem> {
     this._priceElement = ensureElement('.card__price', container) as HTMLElement;
 
     this._openDialgButton.addEventListener('click', () => {
-      eventEmitter.emit(Events.SHOP_ITEM__CLICKED, {id: this._data.id});
+      eventEmitter.emit(Events.SHOP_ITEM__CLICKED, {id: itemId});
     });
   }
 

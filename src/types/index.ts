@@ -1,4 +1,5 @@
 export type PaymentMethod = 'card' | 'cash';
+export type ContentType = 'item' | 'order' | 'order_success';
 
 export interface IItemsDto {
   total: number,
@@ -17,6 +18,7 @@ export interface IItem {
 
 export interface IModal {  
   content: HTMLElement,
+  contentType?: ContentType,
 }
 
 export interface IItemCategory {

@@ -1,4 +1,4 @@
-import { IModal } from "../../types";
+import { ContentType, IModal } from "../../types";
 import { Events } from "../../utils/constants";
 import { ensureElement } from "../../utils/utils";
 import { Component } from "../base/Component";
@@ -8,6 +8,7 @@ export class ModalView extends Component<IModal>  {
   
   protected _content: HTMLElement;
   protected _container: HTMLElement;
+  protected _contentType: ContentType;
 
   constructor(protected container: HTMLElement, protected events: IEvents) {
     super(container);
@@ -45,5 +46,13 @@ export class ModalView extends Component<IModal>  {
   set content(value: HTMLElement) {
     this._content.replaceChildren(value);
     this.open();
+  }
+
+  set contentType(value: ContentType) {
+    this._contentType = value;
+  }
+
+  get contentType(): ContentType {
+    return this._contentType;
   }
 }
