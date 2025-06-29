@@ -1,9 +1,3 @@
-export type CurrentModalWindow = 'order_contacts' | 
-  'order_info' | 
-  'card-preview' | 
-  'basket' | 
-  null;
-
 export type PaymentMethod = 'card' | 'cash';
 
 export interface IItemsDto {
@@ -19,6 +13,10 @@ export interface IItem {
   category: string, 
   categoryColorClass?: string, 
   price: number | null,
+}
+
+export interface IModal {  
+  content: HTMLElement,
 }
 
 export interface IItemCategory {

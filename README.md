@@ -130,6 +130,13 @@ submitOrder(): Promise<IOrder>
 
 ## Отображения
 
+### ModalView - Модальное окно
+Отражает модальное окно.
+```
+content: HTMLElement; // контент модального окна
+container: HTMLElement; // контейнер самого модального окна
+```
+
 ### MainPage - Главная страница
 Содержит список со всеми товарами и кнопку корзины.
 ```
@@ -183,18 +190,6 @@ backToStore: HtmlButtonElement, // кнопка возвращения в маг
 ```
 
 ## Типы
-
-### CurrentModalWindow
-
-Тип, определяющий возможные состояния открытого модального окна.
-
-```
-type CurrentModalWindow = 'order_contacts' | 
-  'order_info' | 
-  'card-preview' | 
-  'basket' | 
-  null;
-```
 
 ### PaymentMethod
 
@@ -291,5 +286,15 @@ interface IOrderRequest {
 interface IOrderResponse {
   id: string; // id заказа
   total: number; // сумма заказа
+}
+```
+
+### IModal
+
+Интерфейс для отражения модального окна.
+
+```
+export interface IModal {  
+  content: HTMLElement,
 }
 ```
