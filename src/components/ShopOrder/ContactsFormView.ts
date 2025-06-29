@@ -5,15 +5,13 @@ import { Component } from "../base/Component";
 import { IEvents } from "../base/EventEmitter";
 
 export class ContactsFormView extends Component<IOrder> {
-  protected _container: HTMLElement;
   protected _emailInputElement: HTMLInputElement;
   protected _phoneInputElement: HTMLInputElement;
   protected _proceedButton: HTMLButtonElement;
   protected _errorElement: HTMLElement;
 
-  constructor(container: HTMLElement, events: IEvents, emailValidator: (email: string) => boolean, phoneValidator: (phone: string) => boolean) {
+  constructor(protected container: HTMLElement, protected events: IEvents, emailValidator: (email: string) => boolean, phoneValidator: (phone: string) => boolean) {
     super(container);
-    this._container = container;
 
     this._errorElement = ensureElement('.form__errors', container) as HTMLElement;
     this._emailInputElement = ensureElement('[name="email"]', container) as HTMLInputElement;

@@ -68,6 +68,11 @@ export class OrderModel {
     }
   }
 
+  setOrder(order: IOrder) {
+    this._shopOrder = order;
+    this._events.emit(Events.SHOP_ORDER__CHANGED);
+  }
+
   validateEmail = (email: string): boolean => {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailPattern.test(email);
@@ -76,5 +81,10 @@ export class OrderModel {
   validatePhone = (phone: string): boolean => {
     const phonePattern = /[0-9\+\-\s]{5,15}/g;
     return phonePattern.test(phone);
+  }
+
+  validateAddress = (address: string): boolean => {
+    const addressPattern = /[a-zA-Z0-9\s,.-]{5,}/;
+    return addressPattern.test(address);
   }
 }

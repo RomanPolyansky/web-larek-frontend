@@ -8,10 +8,8 @@ export class BasketView extends Component<IOrder> {
   _basketElement: HTMLElement;
   _totalPriceElement: HTMLElement;
   _orderButton: HTMLButtonElement;
-  _basketElementsBuilder: (items: IItem[]) => HTMLElement[];
-  constructor(container: HTMLElement, events: IEvents, basketElementsBuilder: (items: IItem[]) => HTMLElement[]) {
+  constructor(protected container: HTMLElement, protected events: IEvents, protected basketElementsBuilder: (items: IItem[]) => HTMLElement[]) {
     super(container);
-    this._basketElementsBuilder = basketElementsBuilder;
     
     this._totalPriceElement = ensureElement('.basket__price', container) as HTMLElement;
     this._orderButton = ensureElement('.basket__button', container) as HTMLButtonElement;
@@ -24,7 +22,7 @@ export class BasketView extends Component<IOrder> {
 
   set items(value: IItem[]) {
     this._basketElement.innerHTML = '';
-    const itemElements = this._basketElementsBuilder(value);
+    const itemElements = this.basketElementsBuilder(value);
     this._basketElement.replaceChildren(...itemElements);
     this.setButtonAvailability(itemElements.length > 0);
   }

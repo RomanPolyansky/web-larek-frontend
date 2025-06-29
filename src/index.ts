@@ -1,9 +1,9 @@
 import './scss/styles.scss';
 import { EventEmitter } from './components/base/EventEmitter';
-import { MainPageView } from './components/MainPage/MainPage';
+import { MainPageView } from './components/MainPage/MainPageView';
 import { ItemModel as ItemModel } from './components/Item/ItemModel';
 import { ItemCatalog as ShopItemInCatalog } from './components/Item/ItemCatalog';
-import { IItem } from './types';
+import { IItem, PaymentMethod } from './types';
 import { categories, Events } from './utils/constants';
 import { cloneTemplate, ensureElement } from './utils/utils';
 import { ItemModalView } from './components/Item/ItemModalView';
@@ -111,15 +111,18 @@ events.on(Events.SHOP_ORDER__OPEN, () => {
 events.on(Events.SHOP_ORDER__PROCEED, () => {
   const order = orderModel.getOrder();
   const modal = cloneTemplate('#order') as HTMLElement;
-  const view = new OrderFormView(modal, events, order);
+  const view = new OrderFormView(modal, events, orderModel.validateAddress);
   modalView.render({
     content: view.render(order),
     contentType: 'order',
   });
 })
 
-events.on(Events.ORDER_FORM__SUBMITTED_INFO, () => {
+events.on(Events.ORDER_FORM__SUBMITTED_INFO, (data: { address: string, payment: PaymentMethod }) => {
   const order = orderModel.getOrder();
+  order.address = data.address;
+  order.payment = data.payment;
+  orderModel.setOrder(order);
   const modal = cloneTemplate('#contacts') as HTMLElement;
   const view = new ContactsFormView(modal, events, orderModel.validateEmail, orderModel.validatePhone);
   modalView.render({

@@ -5,31 +5,38 @@ import { Component } from "../base/Component";
 import { IEvents } from "../base/EventEmitter";
 
 export class OrderFormView extends Component<IOrder> {
-
-  private _data: IOrder;
-  protected _container: HTMLElement;
   protected _addressInputElement: HTMLInputElement;
   protected _orderButton: HTMLButtonElement;
   protected _paymentButtonsMap: Map<PaymentMethod, HTMLButtonElement> = new Map();
+  protected _errorElement: HTMLElement;
+  protected _payment: PaymentMethod = 'cash';
 
-  constructor(container: HTMLElement, events: IEvents, data: IOrder) {
+  constructor(
+      protected container: HTMLElement, 
+      protected events: IEvents, 
+      protected addressValidator: (address: string) => boolean) {
     super(container);
-    this._container = container;
-    this._data = data;
     
+    this._errorElement = ensureElement('.form__errors', container) as HTMLElement;
     this._addressInputElement = ensureElement('.form__input', container) as HTMLInputElement;
     this._orderButton = ensureElement('.order__button', container) as HTMLButtonElement;
 
     this.initButtons();
 
-    this._container.addEventListener('submit', (event) => {
+    this.container.addEventListener('submit', (event) => {
         event.preventDefault();
-        this._data.address = this._addressInputElement.value;
-        events.emit(Events.ORDER_FORM__SUBMITTED_INFO);
+        events.emit(Events.ORDER_FORM__SUBMITTED_INFO, 
+          { address: this._addressInputElement.value, payment: this._payment})
     })
     this._addressInputElement.addEventListener('input', () => {
-      this._data.address = this._addressInputElement.value;
-      this._orderButton.disabled = !this._addressInputElement.validity.valid
+        if (this._addressInputElement.value === '') return;
+        if (addressValidator(this._addressInputElement.value)) {
+          this.setText(this._errorElement, '');
+          this._orderButton.disabled = false;
+        } else {
+          this.setText(this._errorElement, 'Некорректный адрес');
+          this._orderButton.disabled = true;
+        }
     });
   }
 
@@ -42,13 +49,13 @@ export class OrderFormView extends Component<IOrder> {
 
     this._paymentButtonsMap.forEach((button, method) => {
       button.addEventListener('click', () => {
-        this._data.payment = method;
+        this.payment = method;
         this._paymentButtonsMap.forEach((btn, btnKey) => {
           if (btnKey !== method) {
             btn.disabled = false;
           } else {
             btn.disabled = true;
-            this._data.payment = btnKey; 
+            this.payment = btnKey; 
           }
         });
       });
@@ -59,5 +66,14 @@ export class OrderFormView extends Component<IOrder> {
     this._paymentButtonsMap.forEach((button, method) => {
       button.disabled = method === value;
     });
+    this._payment = value;
+  }
+
+  set address(value: string) {
+    this._addressInputElement.value = value;
+    if (this.addressValidator(this._addressInputElement.value)) {
+      this.setText(this._errorElement, '');
+      this._orderButton.disabled = false;
+    }
   }
 }
