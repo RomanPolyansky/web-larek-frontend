@@ -2,11 +2,12 @@ import { IItem, IOrder, IOrderRequest, IOrderResponse } from "../../types";
 import { Events } from "../../utils/constants";
 import { Api } from "../base/Api";
 import { IEvents } from "../base/EventEmitter";
+import { OrderApi } from "./OrderApi";
 
 export class OrderModel {
   protected _shopOrder: IOrder;
 
-  constructor(protected _events: IEvents, protected _api: Api, shopOrder?: IOrder) {
+  constructor(protected _events: IEvents, protected _api: OrderApi, shopOrder?: IOrder) {
     _events.on(Events.SHOP_ORDER__CHANGED, () => {
       this._shopOrder.total = this.calculateTotal();
     });
@@ -58,24 +59,12 @@ export class OrderModel {
 
   async submitOrder(): Promise<IOrder> {
     try {
-      const request = this.orderToRequest(this._shopOrder);
-      const response = await this._api.post<IOrderResponse>('/api/weblarek/order', request);
+      const response = await this._api.postOrder(this._shopOrder);
       this._shopOrder.total = response.total; // Update total from the response
       return this._shopOrder;
     } catch (error) {
       console.error('Failed to submit order:', error);
       return Promise.reject(error);
     }
-  }
-
-  private orderToRequest(order: IOrder): IOrderRequest {
-    return {
-      payment: order.payment,
-      email: order.email,
-      phone: order.phone,
-      address: order.address,
-      total: order.total,
-      items: order.items.map(item => item.id) // Convert items to IDs for the DTO
-    };
   }
 }

@@ -63,12 +63,24 @@ yarn build
 
 ## Api
 
-Базовый адрес API задаётся через переменную окружения API_ORIGIN и внедряется через webpack.
-Все запросы к API выполняются через класс Api реализованный через паттерн синглтон и внедряющийся в модели данных.
-Для получения списка товаров: GET /api/weblarek/product
-Для получения товара по id: GET /api/weblarek/product/:id
-Для оформления заказа: POST /api/weblarek/order
-Для получения ссылки на изображение подставляется: {API_ORIGIN}/content/weblarek/{image}
+### ItemApi - АПИ для работы с товарами
+
+Получет предметы магазина и возвращает их.
+
+Методы:
+```
+async getItems(): Promise<IItem[]> 
+async getItemById(id: string): Promise<IItem | null>
+```
+
+### OrderApi - АПИ для отправки заказа
+
+Отправляет заказ.
+
+Методы:
+```
+async postOrder(order: IOrder): Promise<IOrderResponse | null> 
+```
 
 ## Событийная архитектура
 

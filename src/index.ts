@@ -13,15 +13,17 @@ import { BasketView } from './components/ShopOrder/BasketView';
 import { OrderFormView } from './components/ShopOrder/OrderFormView';
 import { ContactsFormView } from './components/ShopOrder/ContactsFormView';
 import { OrderSuccessView } from './components/ShopOrder/OrderSuccessView';
-import { Api } from './components/base/Api';
 import { ModalView } from './components/ModalWindow/ModalView';
+import { ItemApi } from './components/Item/ItemApi';
+import { OrderApi } from './components/ShopOrder/OrderApi';
 
 const events = new EventEmitter();
 
-const api = new Api(`${process.env.API_ORIGIN}`);
+const itemApi = new ItemApi(`${process.env.API_ORIGIN}`);
+const orderApi = new OrderApi(`${process.env.API_ORIGIN}`);
 
-const shopItemModel = new ItemModel(events, api);
-const shopOrderModel = new OrderModel(events, api);
+const shopItemModel = new ItemModel(events, itemApi);
+const shopOrderModel = new OrderModel(events, orderApi);
 const categoryModel = new CategoryModel();
 
 const mainPageView = new MainPageView(
@@ -136,5 +138,4 @@ events.on(Events.ORDER__CLOSED, () => {
 });
 
 categories.forEach(category => categoryModel.addCategory(category));
-
-console.log('Shop items set:', shopItemModel.getItems());
+shopItemModel.fetchItems();
