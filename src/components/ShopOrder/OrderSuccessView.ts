@@ -1,17 +1,15 @@
-import { IShopOrder } from "../../types";
+import { IOrder } from "../../types";
 import { Events } from "../../utils/constants";
 import { ensureElement } from "../../utils/utils";
 import { Component } from "../base/Component";
 import { IEvents } from "../base/EventEmitter";
 
-export class OrderSuccessView extends Component<IShopOrder> {
-  private _container: HTMLElement;
+export class OrderSuccessView extends Component<IOrder> {
   protected _totalWithdawElement: HTMLElement;
   protected _backToShopButton: HTMLButtonElement;
 
-  constructor(container: HTMLElement, IEventEmitter: IEvents, data: IShopOrder) {
+  constructor(container: HTMLElement, IEventEmitter: IEvents) {
     super(container);
-    this._container = container;
     
     this._backToShopButton = ensureElement('.order-success__close', container) as HTMLButtonElement;
     this._totalWithdawElement = ensureElement('.order-success__description', container) as HTMLElement;

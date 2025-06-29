@@ -1,15 +1,15 @@
-import { EventEmitter } from './components/base/EventEmitter';
-import { MainPage } from './components/MainPage/MainPage';
-import { ShopItemModel } from './components/ShopItem/ShopItemModel';
-import { ShopItemCatalog as ShopItemInCatalog } from './components/ShopItem/ShopItemCatalog';
 import './scss/styles.scss';
-import { IShopItem } from './types';
+import { EventEmitter } from './components/base/EventEmitter';
+import { MainPageView } from './components/MainPage/MainPage';
+import { ItemModel as ItemModel } from './components/Item/ItemModel';
+import { ItemCatalog as ShopItemInCatalog } from './components/Item/ItemCatalog';
+import { CurrentModalWindow, IItem } from './types';
 import { categories, Events, testShpopItems as testShopItems } from './utils/constants';
 import { cloneTemplate, ensureElement } from './utils/utils';
-import { ShopItemModalView } from './components/ShopItem/ShopItemModalView';
-import { ShopOrderModel } from './components/ShopOrder/ShopOrderModel';
-import { CategoryModel } from './components/ShopItem/Category/CategoryModel';
-import { ShopBasketView } from './components/ShopOrder/ShopBasketView';
+import { ItemModalView } from './components/Item/ItemModalView';
+import { OrderModel } from './components/ShopOrder/OrderModel';
+import { CategoryModel } from './components/Item/Category/CategoryModel';
+import { BasketView } from './components/ShopOrder/BasketView';
 import { OrderFormView } from './components/ShopOrder/OrderFormView';
 import { ContactsFormView } from './components/ShopOrder/ContactsFormView';
 import { OrderSuccessView } from './components/ShopOrder/OrderSuccessView';
@@ -17,25 +17,23 @@ import { Api } from './components/base/Api';
 
 const events = new EventEmitter();
 
-const api = new Api(`${process.env.API_ORIGIN}/api/weblarek`);
+const api = new Api(`${process.env.API_ORIGIN}`);
 
-const shopItemModel = new ShopItemModel(events, api);
-const shopOrderModel = new ShopOrderModel(events, api);
+const shopItemModel = new ItemModel(events, api);
+const shopOrderModel = new OrderModel(events, api);
 const categoryModel = new CategoryModel();
 
 const modalWindow = ensureElement('#modal-container') as HTMLElement;
 const modalContent = ensureElement('.modal__content') as HTMLElement;
 
-const mainPage = new MainPage(
+const mainPageView = new MainPageView(
   ensureElement('.page__wrapper') as HTMLElement,
   events
 )
 
-type CurrentModalWindow = 'order_contacts' | 'order_info' | 'card-preview' | 'basket' | null;
 let currentModalWindow: CurrentModalWindow = null;
 
-events.on(Events.SHOP_ITEMS__CHANGED, (items: IShopItem[]) => {
-  console.log('Shop items updated:', items);
+events.on(Events.SHOP_ITEMS__CHANGED, (items: IItem[]) => {
   const previews = shopItemModel
     .getItems()
     .map(item => {
@@ -46,7 +44,7 @@ events.on(Events.SHOP_ITEMS__CHANGED, (items: IShopItem[]) => {
         item)
       return itemElement.render(item);
       });
-  mainPage.render({
+  mainPageView.render({
     shopItems: previews,
   });
 });
@@ -58,7 +56,7 @@ events.on(Events.SHOP_ITEM__CLICKED, async (data: { id: string }) => {
   item.categoryColorClass = categoryModel.getCategory(item.category).colorClass;
   const modal = cloneTemplate('#card-preview') as HTMLElement;
 
-  const shopItemModal = new ShopItemModalView(modal, events, item);
+  const shopItemModal = new ItemModalView(modal, events, item);
   shopItemModal.buttonState = shopOrderModel.getItemIds().includes(item.id);
   shopItemModal.render(item);
   modalContent.replaceChildren(modal);
@@ -73,7 +71,7 @@ events.on(Events.MODAL__CLOSED, () => {
 });
 
 // Set adding items to the basket event
-events.on<IShopItem>(Events.SHOP_ORDER__ITEM_ADDED, async (data) => {
+events.on<IItem>(Events.SHOP_ORDER__ITEM_ADDED, async (data) => {
   const item = await shopItemModel.getItemById(data.id);
   if (item) {
     shopOrderModel.addItem(item);
@@ -81,7 +79,7 @@ events.on<IShopItem>(Events.SHOP_ORDER__ITEM_ADDED, async (data) => {
 });
 
 // Set removing items from the basket event
-events.on<IShopItem>(Events.SHOP_ORDER__ITEM_REMOVED, async (data) => {
+events.on<IItem>(Events.SHOP_ORDER__ITEM_REMOVED, async (data) => {
   const item = await shopItemModel.getItemById(data.id);
   if (item) {
     shopOrderModel.removeItem(item);
@@ -90,7 +88,7 @@ events.on<IShopItem>(Events.SHOP_ORDER__ITEM_REMOVED, async (data) => {
 
 // Set basket counter change event
 events.on(Events.SHOP_ORDER__CHANGED, () => {
-  mainPage.basketCount = shopOrderModel.getItemIds().length;
+  mainPageView.basketCount = shopOrderModel.getItemIds().length;
 });
 
 // Set basket items change event
@@ -98,17 +96,17 @@ events.on(Events.SHOP_ORDER__CHANGED, () => {
   // if shop basket is open, update it
   if (currentModalWindow !== 'basket') return;
   const order = shopOrderModel.getOrder();
-  const shopItemModal = new ShopBasketView(modalWindow, cloneTemplate('#card-basket'), events, order);
+  const shopItemModal = new BasketView(modalWindow, cloneTemplate('#card-basket'), events, order);
   shopItemModal.render(order);
 });
 
 events.on(Events.SHOP_ORDER__OPEN, () => {
-    const modal = cloneTemplate('#basket') as HTMLElement;
-    const shopOrder = shopOrderModel.getOrder();
-    const shopBasketView = new ShopBasketView(modal, cloneTemplate('#card-basket'), events, shopOrder);
-    modalContent.replaceChildren(shopBasketView.render(shopOrder));
-    modalWindow.classList.add('modal_active');
-    currentModalWindow = 'basket';
+  const modal = cloneTemplate('#basket') as HTMLElement;
+  const shopOrder = shopOrderModel.getOrder();
+  const shopBasketView = new BasketView(modal, cloneTemplate('#card-basket'), events, shopOrder);
+  modalContent.replaceChildren(shopBasketView.render(shopOrder));
+  modalWindow.classList.add('modal_active');
+  currentModalWindow = 'basket';
 });
 
 events.on(Events.SHOP_ORDER__PROCEED, () => {
@@ -137,7 +135,7 @@ events.on(Events.ORDER_FORM__SUBMITTED_CONTACTS, async () => {
   }
   console.log('Order submitted:', order);
   const modal = cloneTemplate('#success') as HTMLElement;
-  const view = new OrderSuccessView(modal, events, order);
+  const view = new OrderSuccessView(modal, events);
   modalContent.replaceChildren(view.render(order));
   events.emit(Events.ORDER__CLOSED);
 });

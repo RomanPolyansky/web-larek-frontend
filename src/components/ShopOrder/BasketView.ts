@@ -1,19 +1,19 @@
-import { IShopItem, IShopOrder } from "../../types";
+import { IItem, IOrder } from "../../types";
 import { Events } from "../../utils/constants";
 import { ensureElement, getFormattedPrice } from "../../utils/utils";
 import { Component } from "../base/Component";
 import { IEvents } from "../base/EventEmitter";
 import { BasketItemView } from "./BasketItemView";
 
-export class ShopBasketView extends Component<IShopOrder> {
-  _data: IShopOrder;
+export class BasketView extends Component<IOrder> {
+  _data: IOrder;
   _basketElement: HTMLElement;
   _totalPriceElement: HTMLElement;
   _orderButton: HTMLButtonElement;
   _basketItemTemplate: HTMLElement;
   _events: IEvents;
 
-  constructor(container: HTMLElement, basketItemTemplate: HTMLElement, eventEmitter: IEvents, data: IShopOrder) {
+  constructor(container: HTMLElement, basketItemTemplate: HTMLElement, eventEmitter: IEvents, data: IOrder) {
     super(container);
     this._basketItemTemplate = basketItemTemplate;
     this._events = eventEmitter;
@@ -32,7 +32,7 @@ export class ShopBasketView extends Component<IShopOrder> {
     this.setText(this._totalPriceElement, getFormattedPrice(value));
   }
 
-  set items(items: IShopItem[]) {
+  set items(items: IItem[]) {
     this._basketElement.innerHTML = '';
 
     const views = items.map(item => {

@@ -1,15 +1,15 @@
-import { IShopItem } from "../../types";
+import { IItem } from "../../types";
 import { Events } from "../../utils/constants";
 import { ensureElement } from "../../utils/utils";
 import { IEvents } from "../base/EventEmitter";
-import { ShopItemCatalog } from "./ShopItemCatalog";
+import { ItemCatalog } from "./ItemCatalog";
 
-export class ShopItemModalView extends ShopItemCatalog {
+export class ItemModalView extends ItemCatalog {
   protected _descriptionElement: HTMLElement;
   protected _toBasketButton: HTMLButtonElement;
   private _isInOrder: boolean = false;
 
-  constructor(container: HTMLElement, eventEmitter: IEvents, data: IShopItem) {
+  constructor(container: HTMLElement, eventEmitter: IEvents, data: IItem) {
     super(container, eventEmitter, data);
 
     this._descriptionElement = ensureElement('.card__text', container) as HTMLElement;

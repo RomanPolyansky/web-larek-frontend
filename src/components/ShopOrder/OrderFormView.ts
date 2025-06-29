@@ -1,18 +1,18 @@
-import { IShopOrder, PaymentMethod } from "../../types";
+import { IOrder, PaymentMethod } from "../../types";
 import { Events } from "../../utils/constants";
 import { ensureElement } from "../../utils/utils";
 import { Component } from "../base/Component";
 import { IEvents } from "../base/EventEmitter";
 
-export class OrderFormView extends Component<IShopOrder> {
+export class OrderFormView extends Component<IOrder> {
 
-  private _data: IShopOrder;
+  private _data: IOrder;
   protected _container: HTMLElement;
   protected _addressInputElement: HTMLInputElement;
   protected _orderButton: HTMLButtonElement;
   protected _paymentButtonsMap: Map<PaymentMethod, HTMLButtonElement> = new Map();
 
-  constructor(container: HTMLElement, events: IEvents, data: IShopOrder) {
+  constructor(container: HTMLElement, events: IEvents, data: IOrder) {
     super(container);
     this._container = container;
     this._data = data;

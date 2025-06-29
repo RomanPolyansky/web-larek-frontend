@@ -1,11 +1,17 @@
-import { ShopItemCatalog } from "../components/ShopItem/ShopItemCatalog";
+export type CurrentModalWindow = 'order_contacts' | 
+  'order_info' | 
+  'card-preview' | 
+  'basket' | 
+  null;
+
+export type PaymentMethod = 'card' | 'cash';
 
 export interface IItemsDto {
   total: number,
-  items: IShopItem[],
+  items: IItem[],
 }
 
-export interface IShopItem {
+export interface IItem {
   id: string,
   description: string,
   image: string, 
@@ -15,23 +21,26 @@ export interface IShopItem {
   price: number | null,
 }
 
+export interface IItemCategory {
+  name: string,
+  colorClass: string | undefined,
+}
+
 export interface IMainPage {
   shopItems: HTMLElement[], 
   basket: HTMLElement,
 }
 
-export type PaymentMethod = 'card' | 'cash';
-
-export interface IShopOrder {
+export interface IOrder {
   payment: PaymentMethod,
   email: string, 
   phone: string, 
   address: string,
   total: number, 
-  items: IShopItem[] 
+  items: IItem[] 
 }
 
-export interface IShopOrderDto {
+export interface IOrderRequest {
   payment: PaymentMethod,
   email: string, 
   phone: string, 
@@ -40,12 +49,7 @@ export interface IShopOrderDto {
   items: string[] 
 }
 
-export interface IItemCategory {
-  name: string,
-  colorClass: string | undefined,
-}
-
-export interface IShopOrderResponse {
+export interface IOrderResponse {
   id: string,
   total: number,
 }

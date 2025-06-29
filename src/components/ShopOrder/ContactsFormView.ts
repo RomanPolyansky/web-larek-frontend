@@ -1,18 +1,18 @@
-import { IShopOrder } from "../../types";
+import { IOrder } from "../../types";
 import { Events } from "../../utils/constants";
 import { ensureElement } from "../../utils/utils";
 import { Component } from "../base/Component";
 import { IEvents } from "../base/EventEmitter";
 
-export class ContactsFormView extends Component<IShopOrder> {
+export class ContactsFormView extends Component<IOrder> {
 
-  protected _data: IShopOrder;
+  protected _data: IOrder;
   protected _container: HTMLElement;
   protected _emailInputElement: HTMLInputElement;
   protected _phoneInputElement: HTMLInputElement;
   protected _proceedButton: HTMLButtonElement;
 
-  constructor(container: HTMLElement, events: IEvents, data: IShopOrder) {
+  constructor(container: HTMLElement, events: IEvents, data: IOrder) {
     super(container);
     this._container = container;
     this._data = data;

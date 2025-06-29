@@ -41,46 +41,91 @@ npm run build
 yarn build
 ```
 
+## Архитектура приложения
+
+Приложение реализовано через архитектуру MVP, в которой модели данных инкапсулируют логику хранения и работы с данными и уведомляют об изменениях через брокер событий.
+Презентером является точка входа в приложение index.ts в которой описывается вся бизнес-логика и и реакция на события. 
+
+## Основные сущности
+
+* Component — базовый абстрактный класс для UI-компонентов.
+* EventEmitter — брокер событий, реализует паттерн "наблюдатель".
+* Api — класс для работы с REST API (GET/POST).
+* ItemModel — модель каталога товаров, загружает и хранит товары.
+* OrderModel — модель корзины и заказа.
+* MainPageView — представление главной страницы.
+* ItemCatalog / ItemModalView — представления карточки товара в каталоге и модальном окне.
+* BasketView / BasketItemView — представления корзины и её элементов.
+* OrderFormView / ContactsFormView — формы оформления заказа и ввода контактов.
+* OrderSuccessView — окно успешного оформления заказа.
+
+**Типы** описаны в index.ts.
+
+## Api
+
+Базовый адрес API задаётся через переменную окружения API_ORIGIN и внедряется через webpack.
+Все запросы к API выполняются через класс Api реализованный через паттерн синглтон и внедряющийся в модели данных.
+Для получения списка товаров: GET /api/weblarek/product
+Для получения товара по id: GET /api/weblarek/product/:id
+Для оформления заказа: POST /api/weblarek/order
+Для получения ссылки на изображение подставляется: {API_ORIGIN}/content/weblarek/{image}
+
+## Событийная архитектура
+
+Всё взаимодействие между компонентами построено на событиях, которые регистрируются и обрабатываются через EventEmitter.
+События хранятся в перечислении **Events** в **constants.ts**
+
+## Константы
+
+Для отображения цветных категорий используется Map категорий:
+```
+export const categories = [
+    { name: 'другое', colorClass: 'other' },
+    { name: 'софт-скил', colorClass: 'soft' },
+    { name: 'хард-скил', colorClass: 'hard' },
+    { name: 'кнопка', colorClass: 'button' },
+    { name: 'дополнительное', colorClass: 'additional' },
+]
+```
+
 ## Модели
 
-### ShopItemModel - Модель товаров
+### ItemModel - Модель товаров
 Хранит товары и работает с этим хранилищем.
 Инициируется с брокером событий для оповещений об изменениях в хранилище.
+
+Поля:
 ```
 _items: IShopItem[] // хранение всех товаров
 ```
 
 Методы:
 ```
-setItems(items: IShopItem[]): void 
-getItems(): IShopItem[]
-getItemById(id: string): IShopItem | undefined
+getItems(): IItem[]
+setItems(items: IItem[]): void
+async getItemById(id: string): Promise<IItem | null>
 ```
 
-### ShopItem - Товар 
+После получения данных фиксирует путь к изображению.
+В случае ошибки возвращает null и выводит ошибку в консоль.
 
-Представляет собой товар в магазине. 
-Имеет следующие поля:
+### OrderModel - Модель заказа
+
+Класс OrderModel управляет состоянием корзины и заказом пользователя.
+
+Поля:
 ```
-id: string, // уникальный идентификатор
-description: string, // описание товара
-image: string, // относительная ссылка на изображение товара, к примеру: "/5_Dots.svg"
-title: string, // название товара, к примеру: "+1 час в сутках",
-category: string, // категеория товара, к примеру: "софт-скил",
-price: number, // цена товара в у.е.
-``` 
-
-### ShopOrder - Информация о заказе
-
-Представляет собой информацию о заказе. 
-Имеет следующие поля:
+_shopOrder: IOrder // Объект текущего заказа
 ```
-payment: string, // способ оплаты, например: "online"
-email: string, // email покупателя
-phone: string, // номер телефона покупателя
-address: string, // адрес покупателя 
-total: number, // итоговая сумма по корзине
-items: string[] // массив с айди ShopItem в корзине
+
+Методы:
+```
+addItem(item: IItem)
+removeItem(item: IItem)
+getOrder(): IOrder
+calculateTotal(): number // приватный
+clearOrder()
+submitOrder(): Promise<IOrder>
 ``` 
 
 ## Отображения
@@ -135,4 +180,116 @@ phoneInput: HtmlInputElement, // телефон покупателя. Долже
 ```
 closeButton: HtmlButtonElement, // кнопка закрытия окна
 backToStore: HtmlButtonElement, // кнопка возвращения в магазин
+```
+
+## Типы
+
+### CurrentModalWindow
+
+Тип, определяющий возможные состояния открытого модального окна.
+
+```
+type CurrentModalWindow = 'order_contacts' | 
+  'order_info' | 
+  'card-preview' | 
+  'basket' | 
+  null;
+```
+
+### PaymentMethod
+
+Тип, определяющий способ оплаты.
+
+```
+type PaymentMethod = 'card' | 'cash';
+```
+
+### IItem
+
+Интерфейс, описывающий товар.
+
+```
+interface IItem {
+  id: string;
+  description: string;
+  image: string;
+  title: string;
+  category: string;
+  categoryColorClass?: string; // CSS-класс для цвета категории (опционально)
+  price: number | null;
+}
+```
+
+### IItemCategory
+
+Интерфейс для категории товара.
+
+```
+interface IItemCategory {
+  name: string;
+  colorClass: string | undefined;
+}
+```
+
+### IItemsDto
+
+Интерфейс для ответа API, возвращающего список товаров:
+
+```
+interface IItemsDto {
+  total: number; // кол-во товаров
+  items: IItem[];
+}
+```
+
+### IMainPage
+
+Интерфейс для данных главной страницы.
+
+```
+interface IMainPage {
+  shopItems: HTMLElement[];
+  basket: HTMLElement;
+}
+```
+
+### IOrder
+
+Интерфейс для заказа.
+
+```
+interface IOrder {
+  payment: PaymentMethod;
+  email: string;
+  phone: string;
+  address: string;
+  total: number;
+  items: IItem[];
+}
+```
+
+### IOrderRequest
+
+Интерфейс для отправки заказа на сервер
+
+```
+interface IOrderRequest {
+  payment: PaymentMethod;
+  email: string;
+  phone: string;
+  address: string;
+  total: number;
+  items: string[]; // id товаров
+}
+```
+
+### IOrderResponse
+
+Интерфейс для ответа сервера после оформления заказа.
+
+```
+interface IOrderResponse {
+  id: string; // id заказа
+  total: number; // сумма заказа
+}
 ```

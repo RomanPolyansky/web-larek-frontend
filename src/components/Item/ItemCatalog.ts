@@ -1,19 +1,19 @@
-import { IShopItem } from "../../types";
+import { IItem } from "../../types";
 import { Events } from "../../utils/constants";
 import { ensureElement, getFormattedPrice } from "../../utils/utils";
 import { Component } from "../base/Component";
 import { IEvents } from "../base/EventEmitter";
 
-export class ShopItemCatalog extends Component<IShopItem> {
+export class ItemCatalog extends Component<IItem> {
 
-  protected _data: IShopItem;
+  protected _data: IItem;
   protected _categoryElement: HTMLElement;
   protected _titleElement: HTMLElement;
   protected _imageElement: HTMLImageElement;
   protected _priceElement: HTMLElement;
   protected _openDialgButton: HTMLButtonElement;
 
-  constructor(container: HTMLElement, eventEmitter: IEvents, data: IShopItem) {
+  constructor(container: HTMLElement, eventEmitter: IEvents, data: IItem) {
     super(container);
 
     this._data = data;

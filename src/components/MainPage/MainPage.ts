@@ -4,7 +4,7 @@ import { ensureElement } from "../../utils/utils";
 import { Component } from "../base/Component";
 import { IEvents } from "../base/EventEmitter";
 
-export class MainPage extends Component<IMainPage> {
+export class MainPageView extends Component<IMainPage> {
   protected _shopItemsContainer: HTMLElement;
   protected _basketCounter: HTMLElement;
   protected _basketButton: HTMLButtonElement;
@@ -20,10 +20,7 @@ export class MainPage extends Component<IMainPage> {
       eventEmitter.emit(Events.SHOP_ORDER__OPEN);
     });
   }
-
-
-
-
+  
   set basketCount(value: number) {
     this.setText(this._basketCounter, value.toString());
   }

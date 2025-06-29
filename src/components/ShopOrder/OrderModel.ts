@@ -1,14 +1,12 @@
-import { IShopItem, IShopOrder, IShopOrderDto, IShopOrderResponse } from "../../types";
+import { IItem, IOrder, IOrderRequest, IOrderResponse } from "../../types";
 import { Events } from "../../utils/constants";
 import { Api } from "../base/Api";
 import { IEvents } from "../base/EventEmitter";
 
-type PaymentType = 'cash' | 'online';
+export class OrderModel {
+  protected _shopOrder: IOrder;
 
-export class ShopOrderModel {
-  protected _shopOrder: IShopOrder;
-
-  constructor(protected _events: IEvents, protected api: Api, shopOrder?: IShopOrder) {
+  constructor(protected _events: IEvents, protected _api: Api, shopOrder?: IOrder) {
     _events.on(Events.SHOP_ORDER__CHANGED, () => {
       this._shopOrder.total = this.calculateTotal();
     });
@@ -20,17 +18,16 @@ export class ShopOrderModel {
       phone: '',
       address: ''
     };
-  }
-;
+  };
 
-  addItem(item: IShopItem) {
+  addItem(item: IItem) {
     if (!this._shopOrder.items.includes(item)) {
       this._shopOrder.items.push(item);
     }
     this._events.emit(Events.SHOP_ORDER__CHANGED);
   }
 
-  removeItem(item: IShopItem): void {
+  removeItem(item: IItem): void {
     if (!this._shopOrder.items.includes(item)) {
       return;
     }
@@ -41,21 +38,8 @@ export class ShopOrderModel {
   getItemIds(): string[] {
     return this._shopOrder.items.map(item => item.id);
   }
-
-  getItems(): IShopItem[] {
-    return this._shopOrder.items;
-  }
-
-  getTotalItems(): number {
-    return this._shopOrder.items.length;
-  }
-
-  setOrder(order: IShopOrder): void {
-    this._shopOrder = order;
-    this._events.emit(Events.SHOP_ORDER__CHANGED);
-  }
-
-  getOrder(): IShopOrder {
+  
+  getOrder(): IOrder {
     return this._shopOrder;
   }
 
@@ -72,18 +56,26 @@ export class ShopOrderModel {
     this._events.emit(Events.SHOP_ORDER__CHANGED);
   }
 
-  async submitOrder(): Promise<IShopOrder> {
+  async submitOrder(): Promise<IOrder> {
     try {
-      const dto = {
-        ...this._shopOrder,
-        items: this._shopOrder.items.map(item => item.id) // Convert items to IDs for the DTO
-      }
-      const response = await this.api.post<IShopOrderResponse>('/order', dto);
+      const request = this.orderToRequest(this._shopOrder);
+      const response = await this._api.post<IOrderResponse>('/api/weblarek/order', request);
       this._shopOrder.total = response.total; // Update total from the response
       return this._shopOrder;
     } catch (error) {
       console.error('Failed to submit order:', error);
       return Promise.reject(error);
     }
+  }
+
+  private orderToRequest(order: IOrder): IOrderRequest {
+    return {
+      payment: order.payment,
+      email: order.email,
+      phone: order.phone,
+      address: order.address,
+      total: order.total,
+      items: order.items.map(item => item.id) // Convert items to IDs for the DTO
+    };
   }
 }

@@ -1,13 +1,13 @@
-import { IItemsDto, IShopItem } from "../../types";
+import { IItemsDto, IItem } from "../../types";
 import { Events } from "../../utils/constants";
 import { Api } from "../base/Api";
 import { IEvents } from "../base/EventEmitter";
 
-export class ShopItemModel {
-  protected _items: IShopItem[] = [];
+export class ItemModel {
+  protected _items: IItem[] = [];
 
   constructor(protected events: IEvents, protected _api: Api) {
-    _api.get<IItemsDto>('/product')
+    _api.get<IItemsDto>('/api/weblarek/product')
       .then(data => {
         const itemsImageFix = data.items.map(item => {
           item.image = `${process.env.API_ORIGIN}/content/weblarek${item.image}`;
@@ -20,17 +20,17 @@ export class ShopItemModel {
       });
   }
 
-  getItems(): IShopItem[] {
+  getItems(): IItem[] {
     return this._items;
   }
 
-  setItems(items: IShopItem[]): void {
+  setItems(items: IItem[]): void {
     this._items = items;
     this.events.emit(Events.SHOP_ITEMS__CHANGED, this._items);
   }
 
-  async getItemById(id: string): Promise<IShopItem> {
-    return await this._api.get<IShopItem>(`/product/${id}`)
+  async getItemById(id: string): Promise<IItem> {
+    return await this._api.get<IItem>(`/api/weblarek/product/${id}`)
       .then(data => {
         data.image = `${process.env.API_ORIGIN}/content/weblarek${data.image}`;
         return data;
