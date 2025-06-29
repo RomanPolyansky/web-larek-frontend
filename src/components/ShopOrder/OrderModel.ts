@@ -84,7 +84,7 @@ export class OrderModel {
   }
 
   validateAddress = (address: string): boolean => {
-    const addressPattern = /[a-zA-Z0-9\s,.-]{5,}/;
+    const addressPattern = /^.{5,50}$/;
     return addressPattern.test(address);
   }
 }

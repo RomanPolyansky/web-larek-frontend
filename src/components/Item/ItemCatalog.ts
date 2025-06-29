@@ -9,19 +9,19 @@ export class ItemCatalog extends Component<IItem> {
   protected _titleElement: HTMLElement;
   protected _imageElement: HTMLImageElement;
   protected _priceElement: HTMLElement;
-  protected _openDialgButton: HTMLButtonElement;
+  protected _openButton: HTMLButtonElement;
 
   constructor(container: HTMLElement, eventEmitter: IEvents, itemId: string) {
     super(container);
     
-    this._openDialgButton = container as HTMLButtonElement;
+    this._openButton = container as HTMLButtonElement;
 
     this._categoryElement = ensureElement('.card__category', container) as HTMLElement;
     this._titleElement = ensureElement('.card__title', container) as HTMLElement;
     this._imageElement = ensureElement('.card__image', container) as HTMLImageElement;
     this._priceElement = ensureElement('.card__price', container) as HTMLElement;
 
-    this._openDialgButton.addEventListener('click', () => {
+    this._openButton.addEventListener('click', () => {
       eventEmitter.emit(Events.SHOP_ITEM__CLICKED, {id: itemId});
     });
   }
