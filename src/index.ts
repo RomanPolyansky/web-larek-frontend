@@ -24,7 +24,7 @@ const itemApi = new ItemApi(`${process.env.API_ORIGIN}`);
 const orderApi = new OrderApi(`${process.env.API_ORIGIN}`);
 
 const shopItemModel = new ItemModel(events, itemApi);
-const shopOrderModel = new OrderModel(events, orderApi);
+const orderModel = new OrderModel(events, orderApi);
 const categoryModel = new CategoryModel();
 
 const mainPageView = new MainPageView(
@@ -56,7 +56,7 @@ events.on(Events.SHOP_ITEM__CLICKED, async (data: { id: string }) => {
   const itemTemplate = cloneTemplate('#card-preview') as HTMLElement;
 
   const shopItemModal = new ItemModalView(itemTemplate, events, item.id);
-  shopItemModal.buttonState = shopOrderModel.getItemIds().includes(item.id);
+  shopItemModal.buttonState = orderModel.getItemIds().includes(item.id);
 
   modalView.render({
     content: shopItemModal.render(item),
@@ -68,7 +68,7 @@ events.on(Events.SHOP_ITEM__CLICKED, async (data: { id: string }) => {
 events.on<IItem>(Events.SHOP_ORDER__ITEM_ADDED, async (data) => {
   const item = await shopItemModel.getItemById(data.id);
   if (item) {
-    shopOrderModel.addItem(item);
+    orderModel.addItem(item);
   }
 });
 
@@ -76,18 +76,18 @@ events.on<IItem>(Events.SHOP_ORDER__ITEM_ADDED, async (data) => {
 events.on<IItem>(Events.SHOP_ORDER__ITEM_REMOVED, async (data) => {
   const item = await shopItemModel.getItemById(data.id);
   if (item) {
-    shopOrderModel.removeItem(item);
+    orderModel.removeItem(item);
   }
 });
 
 // Set basket counter change event
 events.on(Events.SHOP_ORDER__CHANGED, () => {
-  mainPageView.basketCount = shopOrderModel.getItemIds().length;
+  mainPageView.basketCount = orderModel.getItemIds().length;
 });
 
 // Set basket items change event
 events.on(Events.SHOP_ORDER__CHANGED, () => {
-  const order = shopOrderModel.getOrder();
+  const order = orderModel.getOrder();
   const basketTemplate = cloneTemplate('#basket') as HTMLElement;
   const shopItemModal = new BasketView(basketTemplate, events, basketItemsElementBuilder);
   if (modalView.contentType === 'order') {
@@ -100,7 +100,7 @@ events.on(Events.SHOP_ORDER__CHANGED, () => {
 
 events.on(Events.SHOP_ORDER__OPEN, () => {
   const basketTemplate = cloneTemplate('#basket') as HTMLElement;
-  const shopOrder = shopOrderModel.getOrder();
+  const shopOrder = orderModel.getOrder();
   const shopBasketView = new BasketView(basketTemplate, events, basketItemsElementBuilder);
   modalView.render({
     content: shopBasketView.render(shopOrder),
@@ -109,7 +109,7 @@ events.on(Events.SHOP_ORDER__OPEN, () => {
 });
 
 events.on(Events.SHOP_ORDER__PROCEED, () => {
-  const order = shopOrderModel.getOrder();
+  const order = orderModel.getOrder();
   const modal = cloneTemplate('#order') as HTMLElement;
   const view = new OrderFormView(modal, events, order);
   modalView.render({
@@ -119,17 +119,21 @@ events.on(Events.SHOP_ORDER__PROCEED, () => {
 })
 
 events.on(Events.ORDER_FORM__SUBMITTED_INFO, () => {
-  const order = shopOrderModel.getOrder();
+  const order = orderModel.getOrder();
   const modal = cloneTemplate('#contacts') as HTMLElement;
-  const view = new ContactsFormView(modal, events, order);
+  const view = new ContactsFormView(modal, events, orderModel.validateEmail, orderModel.validatePhone);
   modalView.render({
     content: view.render(order),
     contentType: 'order',
   });
 });
 
-events.on(Events.ORDER_FORM__SUBMITTED_CONTACTS, async () => {
-  const order = await shopOrderModel.submitOrder();
+events.on(Events.ORDER_FORM__SUBMITTED_CONTACTS, 
+    async (data: {email: string; phone: string;}) => {
+  const orderInMemory = orderModel.getOrder();
+  orderInMemory.email = data.email;
+  orderInMemory.phone = data.phone;
+  const order = await orderModel.submitOrder();
   if (!order) {
     console.error('Order submission failed');
     return;
@@ -144,7 +148,7 @@ events.on(Events.ORDER_FORM__SUBMITTED_CONTACTS, async () => {
 });
 
 events.on(Events.ORDER__CLOSED, () => {
-  shopOrderModel.clearOrder();
+  orderModel.clearOrder();
 });
 
 const basketItemsElementBuilder = (orderItems: IItem[]) => orderItems.map(item => {

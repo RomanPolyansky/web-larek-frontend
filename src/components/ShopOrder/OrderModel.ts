@@ -67,4 +67,14 @@ export class OrderModel {
       return Promise.reject(error);
     }
   }
+
+  validateEmail = (email: string): boolean => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  }
+
+  validatePhone = (phone: string): boolean => {
+    const phonePattern = /[0-9\+\-\s]{5,15}/g;
+    return phonePattern.test(phone);
+  }
 }
