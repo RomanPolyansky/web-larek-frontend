@@ -16,11 +16,10 @@ export class ItemModalView extends ItemCatalog {
     this._toBasketButton = ensureElement('.card__button', container) as HTMLButtonElement;
 
     this._toBasketButton.addEventListener('click', () => {
-      if (this._isInOrder) {
-        eventEmitter.emit(Events.SHOP_ORDER__ITEM_REMOVED, this._data);
-      } else {
-        eventEmitter.emit(Events.SHOP_ORDER__ITEM_ADDED, this._data);
-      }
+      this._isInOrder ? 
+        eventEmitter.emit(Events.SHOP_ORDER__ITEM_REMOVED, this._data)
+        : eventEmitter.emit(Events.SHOP_ORDER__ITEM_ADDED, this._data);
+
       this.toggleButtonState();
     });
   }
@@ -35,11 +34,9 @@ export class ItemModalView extends ItemCatalog {
   }
 
   setButtonState(): void {
-    if (this._isInOrder) {
-      this.setText(this._toBasketButton, 'Убрать из корзины');
-    } else {
-      this.setText(this._toBasketButton, 'В корзину');
-    }
+    this._isInOrder ?
+      this.setText(this._toBasketButton, 'Убрать из корзины')
+      : this.setText(this._toBasketButton, 'В корзину');
   }
 
   toggleButtonState(): void {

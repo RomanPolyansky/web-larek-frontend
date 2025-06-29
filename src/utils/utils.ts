@@ -134,7 +134,7 @@ export function createElement<
     return element;
 }
 
-export function getFormattedPrice(value: number) {
+export function getFormattedPrice(value: number | null) {
     if (!value || isNaN(value) || value <= 0) {
         return 'Бесценно';
     }

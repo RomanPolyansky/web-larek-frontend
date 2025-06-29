@@ -46,7 +46,7 @@ export class ItemCatalog extends Component<IItem> {
     this.setImage(this._imageElement, value);
   }
 
-  set price(value: number) {
+  set price(value: number | null) {
       const formattedPrice = getFormattedPrice(value);
       this.setText(this._priceElement, formattedPrice);
   }
