@@ -26,7 +26,7 @@ export class ItemModel {
 
   setItems(items: IItem[]): void {
     this._items = items;
-    this.events.emit(Events.SHOP_ITEMS__CHANGED, this._items);
+    this.events.emit(Events.SHOP_ITEMS__CHANGED);
   }
 
   async getItemById(id: string): Promise<IItem> {

@@ -4,7 +4,7 @@ import { MainPageView } from './components/MainPage/MainPage';
 import { ItemModel as ItemModel } from './components/Item/ItemModel';
 import { ItemCatalog as ShopItemInCatalog } from './components/Item/ItemCatalog';
 import { CurrentModalWindow, IItem } from './types';
-import { categories, Events, testShpopItems as testShopItems } from './utils/constants';
+import { categories, Events } from './utils/constants';
 import { cloneTemplate, ensureElement } from './utils/utils';
 import { ItemModalView } from './components/Item/ItemModalView';
 import { OrderModel } from './components/ShopOrder/OrderModel';
@@ -33,7 +33,7 @@ const mainPageView = new MainPageView(
 
 let currentModalWindow: CurrentModalWindow = null;
 
-events.on(Events.SHOP_ITEMS__CHANGED, (items: IItem[]) => {
+events.on(Events.SHOP_ITEMS__CHANGED, () => {
   const previews = shopItemModel
     .getItems()
     .map(item => {
